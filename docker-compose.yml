@@ -1,0 +1,46 @@
+services:
+
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=users_jwt_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5436:5432"      	
+    networks:
+      - user-roles-jwt-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: postgres:5432
+      DB_DATABASE: users_jwt_db
+      DB_SCHEMA: keycloak
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: localhost
+    command: ["start-dev"]  # Указываем команду для запуска Keycloak в режиме разработки
+    ports:
+      - "8484:8080"
+    depends_on:
+      - postgres
+    networks:
+      - user-roles-jwt-network
+
+
+volumes:
+  db:
+
+networks:
+  user-roles-jwt-network:
+    driver: bridge
+    name: user-roles-jwt-network

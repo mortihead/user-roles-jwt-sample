@@ -1,0 +1,51 @@
+server:
+  port: 8086
+project:
+  version: 1.0
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.springframework.web: ERROR
+    #org.springframework.security: trace
+
+spring:
+  application:
+    name: user-roles-jwt-sample
+  #settings of postgres
+  datasource:
+    url: jdbc:postgresql://localhost:5436/users_jwt_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      properties:
+        hibernate:
+          default_schema:users_jwt_app
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: users_jwt_app
+  openapi:
+    path: /v3/api-docs
+  springdoc:
+    swagger-ui:
+      enabled: true
+  security:
+    oauth2:
+          resourceserver:
+            jwt:
+              issuer-uri: http://localhost:8484/realms/users-jwt-realm
+
+keycloak:
+  realm: users-jwt-realm
+  auth-server-url: http://localhost:8484/auth
+  resource: users-jwt-client
+  public-client: true
+  bearer-only: true
+
+
+
