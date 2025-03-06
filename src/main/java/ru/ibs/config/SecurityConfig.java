@@ -70,7 +70,7 @@ public class SecurityConfig {
             }
             Collection<String> roles = (Collection<String>) realmAccess.get("roles");
             return roles.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .map(role -> new SimpleGrantedAuthority( role))
                     .collect(Collectors.toList());
         });
         return converter;

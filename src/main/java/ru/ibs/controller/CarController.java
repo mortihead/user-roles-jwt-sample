@@ -11,14 +11,28 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import ru.ibs.dto.User;
 import ru.ibs.entity.Car;
+import ru.ibs.repository.CarRepository;
 import ru.ibs.service.CarService;
+import ru.ibs.service.UserService;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.ibs.dto.User;
+import ru.ibs.enums.RoleEnum;
 
 @RestController
 @RequestMapping(value = "api/v1/", produces = "application/json")
@@ -27,38 +41,17 @@ import java.util.stream.Collectors;
 public class CarController {
 
     private final CarService carService;
+    private final CarRepository carRepository;
 
     @GetMapping("/cars")
     public List<Car> getAllCars(
-        //    @AuthenticationPrincipal Jwt jwt,
-            HttpServletRequest request) {
-        // Извлекаем роли из JWT-токена
-    //    Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-    //    Collection<String> roles = (Collection<String>) realmAccess.get("roles");
-
-        // Преобразуем роли в строку
-     //   String rolesString = String.join(", ", roles);
-     //   log.info(rolesString);
-
-        return carService.findAll(request);
+            @AuthenticationPrincipal Jwt jwt) {
+        return carService.findAll(jwt);
     }
 
     @GetMapping("/cars2")
-    public List<Car> getAllCars2(HttpServletRequest request) {
-        // Получаем объект Authentication
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // Получаем имя пользователя
-        String username = authentication.getName();
-        log.info("Username: {}", username);
-        // Получаем роли пользователя
-        String roles = authentication.getAuthorities().stream()
-                .map(grantedAuthority -> grantedAuthority.getAuthority())
-                .collect(Collectors.joining(", "));
-
-
-        log.info(roles);
-
-        return carService.findAll(request);
+    public List<Car> getAllCars2() {
+        return carService.findAll2();
     }
 
     @GetMapping("/cars/{id}")
@@ -81,7 +74,7 @@ public class CarController {
     }
 
     @GetMapping("/version")
-    public String getVersion(HttpServletRequest request) {
-        return carService.getVersion(request);
+    public String getVersion() {
+        return carService.getVersion();
     }
 }

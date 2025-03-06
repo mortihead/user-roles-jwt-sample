@@ -36,16 +36,11 @@ spring:
       enabled: true
   security:
     oauth2:
-          resourceserver:
-            jwt:
-              issuer-uri: http://localhost:8484/realms/users-jwt-realm
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8484/realms/users-jwt-realm
 
-keycloak:
-  realm: users-jwt-realm
-  auth-server-url: http://localhost:8484/auth
-  resource: users-jwt-client
-  public-client: true
-  bearer-only: true
+
 
 
 

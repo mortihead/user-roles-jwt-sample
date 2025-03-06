@@ -3,10 +3,10 @@ package ru.ibs.service;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import ru.ibs.dto.User;
 import ru.ibs.entity.Car;
 import ru.ibs.enums.BrandEnum;
 import ru.ibs.repository.CarRepository;
@@ -21,21 +21,33 @@ import java.util.Optional;
 public class CarService {
 
     private final CarRepository carRepository;
+    private final UserService userService;
 
     @Value("${project.version}")
     private String version;
 
-    public List<Car> findAll(HttpServletRequest request) {
-//        if (userService.isToyotaManager(user)) {
-//            return carRepository.findByBrand(BrandEnum.TOYOTA.getBrandName());
-//        } else if (userService.isNissanManager(user)) {
-//            return carRepository.findByBrand(BrandEnum.NISSAN.getBrandName());
-//        } else if (userService.isAdmin(user)) {
-//            return carRepository.findAll();
-//        } else return Collections.emptyList();
+    public List<Car> findAll(Jwt jwt) {
+        User user = userService.getUser(jwt);
 
-        return carRepository.findAll();
+        if (userService.isToyotaManager(user)) {
+            return carRepository.findByBrand(BrandEnum.TOYOTA.getBrandName());
+        } else if (userService.isNissanManager(user)) {
+            return carRepository.findByBrand(BrandEnum.NISSAN.getBrandName());
+        } else if (userService.isAdmin(user)) {
+            return carRepository.findAll();
+        } else return Collections.emptyList();
+    }
 
+    public List<Car> findAll2() {
+        User user = userService.getUser();
+
+        if (userService.isToyotaManager(user)) {
+            return carRepository.findByBrand(BrandEnum.TOYOTA.getBrandName());
+        } else if (userService.isNissanManager(user)) {
+            return carRepository.findByBrand(BrandEnum.NISSAN.getBrandName());
+        } else if (userService.isAdmin(user)) {
+            return carRepository.findAll();
+        } else return Collections.emptyList();
     }
 
     public Optional<Car> findById(Integer id) {
@@ -50,7 +62,9 @@ public class CarService {
         carRepository.deleteById(id);
     }
 
-    public String getVersion(HttpServletRequest request) {
+    public String getVersion() {
         return "Версия приложения: " + version;
     }
+
+
 }
